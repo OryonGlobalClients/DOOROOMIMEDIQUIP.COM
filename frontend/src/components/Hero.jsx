@@ -42,7 +42,7 @@ export const Hero = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-14 items-center">
           
           {/* LEFT COLUMN: 50% of Hero Section */}
-          <div className="flex flex-col items-start text-left space-y-6 w-full">
+          <div className="flex flex-col items-start text-left space-y-6 w-full min-w-0 pr-0 lg:pr-4 xl:pr-6">
             
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-white text-slate-900 text-xs font-bold tracking-wide uppercase shadow-xs">
@@ -51,7 +51,7 @@ export const Hero = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-[20px] min-[360px]:text-[22px] min-[390px]:text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-extrabold tracking-tight text-[#062419] font-serif leading-[1.15] drop-shadow-xs whitespace-nowrap">
+            <h1 className="text-2xl min-[390px]:text-3xl sm:text-4xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-extrabold tracking-tight text-[#062419] font-serif leading-[1.2] drop-shadow-xs break-words">
               Free Therapy at Dooroomi
             </h1>
 
