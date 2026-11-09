@@ -62,23 +62,11 @@ export const Hero = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: 50% of Hero Section - Square Bracket Video Container (Infinite Loop) */}
+          {/* RIGHT COLUMN: 50% of Hero Section - Video Screen */}
           <div className="flex justify-center lg:justify-end w-full">
-            <div className="relative w-full max-w-2xl lg:max-w-none p-2 sm:p-6 group">
+            <div className="relative w-full max-w-2xl lg:max-w-none">
               
-              {/* Square Bracket Framing Accents (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
-              <div className="absolute top-0 left-0 w-8 sm:w-12 h-8 sm:h-12 border-t-4 border-l-4 border-white drop-shadow-md pointer-events-none" />
-              <div className="absolute top-0 right-0 w-8 sm:w-12 h-8 sm:h-12 border-t-4 border-r-4 border-white drop-shadow-md pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-8 sm:w-12 h-8 sm:h-12 border-b-4 border-l-4 border-white drop-shadow-md pointer-events-none" />
-              <div className="absolute bottom-0 right-0 w-8 sm:w-12 h-8 sm:h-12 border-b-4 border-r-4 border-white drop-shadow-md pointer-events-none" />
-
-              {/* Bracket Header Pill */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#1941b0] text-white text-[11px] font-mono tracking-wider uppercase font-bold rounded-full shadow-lg border border-white/30 flex items-center gap-1.5 z-20 whitespace-nowrap">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>[ Live Therapy Loop ]</span>
-              </div>
-
-              {/* Video Player Box with Square Bracket Aesthetic - 50% Hero Width */}
+              {/* Video Player Box - 50% Hero Width */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black/50 border-2 border-white/50 aspect-[4/3] sm:aspect-video w-full">
                 <video
                   ref={videoRef}
@@ -116,12 +104,6 @@ export const Hero = () => {
                   >
                     {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                   </button>
-                </div>
-
-                {/* Infinite Loop Badge on bottom-left */}
-                <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/20 text-[11px] text-white font-medium shadow-md">
-                  <span className="text-amber-300 font-bold text-xs">∞</span>
-                  <span>Infinite Loop</span>
                 </div>
               </div>
 
