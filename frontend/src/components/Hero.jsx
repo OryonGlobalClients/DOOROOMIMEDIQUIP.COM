@@ -37,12 +37,12 @@ export const Hero = () => {
       <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/30 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-slate-400/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Main Container: 2-Column Responsive Grid (Left: Content, Right: Square Bracket Video) */}
+      {/* Main Container: 2-Column Responsive Grid (50% Left Content, 50% Right Video Screen) */}
       <div className="relative w-full max-w-[1580px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-14 items-center">
           
-          {/* LEFT COLUMN: Shifted to Left */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-6">
+          {/* LEFT COLUMN: 50% of Hero Section */}
+          <div className="flex flex-col items-start text-left space-y-6 w-full">
             
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-white text-slate-900 text-xs font-bold tracking-wide uppercase shadow-xs">
@@ -51,7 +51,7 @@ export const Hero = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-[20px] min-[360px]:text-[22px] min-[390px]:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-[#062419] font-serif leading-[1.15] drop-shadow-xs whitespace-nowrap">
+            <h1 className="text-[20px] min-[360px]:text-[22px] min-[390px]:text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-extrabold tracking-tight text-[#062419] font-serif leading-[1.15] drop-shadow-xs whitespace-nowrap">
               Free Therapy at Dooroomi
             </h1>
 
@@ -62,9 +62,9 @@ export const Hero = () => {
 
           </div>
 
-          {/* RIGHT COLUMN: Square Bracket Video Container (Infinite Loop) */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
-            <div className="relative w-full max-w-[520px] p-2 sm:p-6 group">
+          {/* RIGHT COLUMN: 50% of Hero Section - Square Bracket Video Container (Infinite Loop) */}
+          <div className="flex justify-center lg:justify-end w-full">
+            <div className="relative w-full max-w-2xl lg:max-w-none p-2 sm:p-6 group">
               
               {/* Square Bracket Framing Accents (Top-Left, Top-Right, Bottom-Left, Bottom-Right) */}
               <div className="absolute top-0 left-0 w-8 sm:w-12 h-8 sm:h-12 border-t-4 border-l-4 border-white drop-shadow-md pointer-events-none" />
@@ -78,8 +78,8 @@ export const Hero = () => {
                 <span>[ Live Therapy Loop ]</span>
               </div>
 
-              {/* Video Player Box with Square Bracket Aesthetic */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black/50 border-2 border-white/50 aspect-[4/3] sm:aspect-video lg:aspect-[4/3] w-full">
+              {/* Video Player Box with Square Bracket Aesthetic - 50% Hero Width */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black/50 border-2 border-white/50 aspect-[4/3] sm:aspect-video w-full">
                 <video
                   ref={videoRef}
                   autoPlay
