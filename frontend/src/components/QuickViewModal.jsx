@@ -68,9 +68,17 @@ export const QuickViewModal = ({
           {/* Right Info Column */}
           <div className="md:col-span-7 p-6 sm:p-8 space-y-6">
             <div>
-              <span className="text-xs font-bold text-hanbit-gold uppercase tracking-wider block">
-                {product.catLabel}
-              </span>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-bold text-hanbit-gold uppercase tracking-wider block">
+                  {product.catLabel}
+                </span>
+                {product.price && (
+                  <span className="px-3 py-1 rounded-full bg-amber-400 text-black text-xs font-mono font-black shadow-xs flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-black" />
+                    <span>{product.price}</span>
+                  </span>
+                )}
+              </div>
               <h2 className="text-2xl font-extrabold text-hanbit-forest mt-1">
                 {product.name}
               </h2>

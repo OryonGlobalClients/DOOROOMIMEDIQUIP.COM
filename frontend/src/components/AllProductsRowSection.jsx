@@ -379,11 +379,16 @@ export const AllProductsRowSection = ({ onSelectProduct, onSelectForQuote, onNav
                         : `border-neutral-200/90 ${itemTheme.hoverBorder} hover:shadow-md`
                     }`}
                   >
-                    {/* Top Badge */}
+                    {/* Top Badge & Price */}
                     <div className="flex items-center justify-between mb-2">
                       <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${itemTheme.modelBadge} transition-colors`}>
                         {prod.badge || 'MEDICAL GRADE'}
                       </span>
+                      {prod.price && (
+                        <span className="text-[10px] font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          {prod.price}
+                        </span>
+                      )}
                     </div>
 
                     {/* Centered Thumbnail Image with custom background according to product */}

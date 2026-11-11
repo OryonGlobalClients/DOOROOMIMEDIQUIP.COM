@@ -39,6 +39,8 @@ productsRouter.post('/', verifyToken, async (req, res) => {
       cat,
       catLabel,
       model,
+      price,
+      priceNumber,
       short,
       desc,
       volume,
@@ -59,6 +61,9 @@ productsRouter.post('/', verifyToken, async (req, res) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '') + '-' + Date.now().toString().slice(-4);
 
+    const formattedPrice = price ? (String(price).startsWith('₹') ? String(price).trim() : `₹${String(price).trim()}`) : '';
+    const parsedPriceNumber = Number(priceNumber) || (price ? parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 0 : 0);
+
     const newProduct = new Product({
       id: uniqueId,
       slug,
@@ -67,6 +72,8 @@ productsRouter.post('/', verifyToken, async (req, res) => {
       cat: cat || 'series-a',
       catLabel: catLabel || 'Therapeutic Medical Systems',
       model: model || 'DM-M' + Math.floor(100 + Math.random() * 900),
+      price: formattedPrice,
+      priceNumber: parsedPriceNumber,
       short: short || name,
       desc: desc || name,
       volume: volume || 'Medical Grade',
@@ -75,6 +82,7 @@ productsRouter.post('/', verifyToken, async (req, res) => {
       imgUrl,
       keyActives: Array.isArray(keyActives) ? keyActives : (keyActives ? keyActives.split(',').map(s => s.trim()) : []),
       specs: Array.isArray(specs) ? specs : [
+        ...(formattedPrice ? [['Authorized Price (INR)', formattedPrice]] : []),
         ['Model Code', model || 'DM-M100'],
         ['Standard Compliance', 'ISO 22716 / Korea CGMP / Medical CE']
       ]
@@ -98,9 +106,21 @@ productsRouter.put('/:id', verifyToken, async (req, res) => {
         ...(mongoose.Types.ObjectId.isValid(idParam) ? [{ _id: idParam }] : [])
       ]
     };
+    const updateData = { ...req.body };
+    if (updateData.price !== undefined) {
+      if (updateData.price) {
+        updateData.price = String(updateData.price).startsWith('₹') ? String(updateData.price).trim() : `₹${String(updateData.price).trim()}`;
+      } else {
+        updateData.price = '';
+      }
+      if (updateData.priceNumber === undefined) {
+        updateData.priceNumber = updateData.price ? parseInt(String(updateData.price).replace(/[^0-9]/g, ''), 10) || 0 : 0;
+      }
+    }
+
     const updated = await Product.findOneAndUpdate(
       query,
-      { $set: req.body },
+      { $set: updateData },
       { new: true }
     );
     if (!updated) {

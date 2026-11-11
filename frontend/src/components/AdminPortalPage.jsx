@@ -47,7 +47,9 @@ import {
   User,
   Lock,
   Key,
-  QrCode
+  QrCode,
+  Tag,
+  IndianRupee
 } from 'lucide-react';
 import { SITE_CONFIG } from '../data/siteData';
 import { useData } from '../context/DataContext';
@@ -123,6 +125,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
     name: '',
     nameKo: '',
     model: '',
+    price: '',
     cat: 'series-b',
     catLabel: 'Cellular Longevity & Therapy Systems',
     short: '',
@@ -504,10 +507,17 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
       return;
     }
 
+    const formattedPrice = newProduct.price
+      ? (String(newProduct.price).trim().startsWith('₹') ? String(newProduct.price).trim() : `₹${String(newProduct.price).trim()}`)
+      : '';
+    const numericPrice = formattedPrice ? parseInt(formattedPrice.replace(/[^0-9]/g, ''), 10) || 0 : 0;
+
     const payload = {
       name: newProduct.name,
       nameKo: newProduct.nameKo,
       model: newProduct.model || 'DM-M' + Math.floor(100 + Math.random() * 900),
+      price: formattedPrice,
+      priceNumber: numericPrice,
       cat: newProduct.cat,
       catLabel: newProduct.catLabel,
       short: newProduct.short || newProduct.name,
@@ -518,6 +528,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
       imgUrl: newProduct.imgUrl,
       keyActives: newProduct.keyActives.split(',').map(s => s.trim()).filter(Boolean),
       specs: [
+        ...(formattedPrice ? [['Authorized Price (INR)', formattedPrice]] : []),
         [newProduct.spec1Label || 'Model Identifier', newProduct.spec1Value || newProduct.model],
         [newProduct.spec2Label || 'Standard Compliance', newProduct.spec2Value || 'ISO 22716 / Korea CGMP']
       ]
@@ -530,6 +541,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
       name: '',
       nameKo: '',
       model: '',
+      price: '',
       cat: 'series-b',
       catLabel: 'Cellular Longevity & Therapy Systems',
       short: '',
@@ -642,8 +654,31 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
 
     try {
       const prodId = editingProduct.id || editingProduct._id;
+      const rawPrice = editingProduct.price !== undefined ? String(editingProduct.price).trim() : '';
+      const formattedPrice = rawPrice ? (rawPrice.startsWith('₹') ? rawPrice : `₹${rawPrice}`) : '';
+      const numericPrice = formattedPrice ? parseInt(formattedPrice.replace(/[^0-9]/g, ''), 10) || 0 : 0;
+
+      let updatedSpecs = Array.isArray(editingProduct.specs) ? [...editingProduct.specs] : [];
+      if (updatedSpecs.length > 0) {
+        const hasPriceSpec = updatedSpecs.some(s => Array.isArray(s) && s[0] && s[0].toLowerCase().includes('price'));
+        if (hasPriceSpec) {
+          updatedSpecs = updatedSpecs.map(s => (Array.isArray(s) && s[0] && s[0].toLowerCase().includes('price')) ? ['Authorized Price (INR)', formattedPrice || 'Contact for Price'] : s);
+        } else if (formattedPrice) {
+          updatedSpecs = [['Authorized Price (INR)', formattedPrice], ...updatedSpecs];
+        }
+      } else if (formattedPrice) {
+        updatedSpecs = [
+          ['Authorized Price (INR)', formattedPrice],
+          ['Model Identifier', editingProduct.model || 'DM-M100'],
+          ['Standard Compliance', 'ISO 22716 / Korea CGMP / Medical CE']
+        ];
+      }
+
       const payload = {
         ...editingProduct,
+        price: formattedPrice,
+        priceNumber: numericPrice,
+        specs: updatedSpecs,
         keyActives: Array.isArray(editingProduct.keyActives) 
           ? editingProduct.keyActives 
           : (editingProduct.keyActives ? editingProduct.keyActives.split(',').map(s => s.trim()).filter(Boolean) : [])
@@ -1336,6 +1371,16 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                       <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/90 text-amber-300 border border-emerald-700/60">
                         {prod.badge || 'Medical Grade'}
                       </span>
+                      {prod.price ? (
+                        <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-400 text-black shadow-md border border-amber-300/40 flex items-center gap-1">
+                          <Tag className="w-3 h-3 text-black" />
+                          <span>{prod.price}</span>
+                        </span>
+                      ) : (
+                        <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-mono bg-neutral-900/80 text-neutral-400 border border-neutral-700/60">
+                          Price: On Request
+                        </span>
+                      )}
                       <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded text-[10px] font-mono bg-black/70 text-neutral-300">
                         {prod.model}
                       </span>
@@ -1343,8 +1388,15 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
 
                     {/* Titles */}
                     <div className="mt-3">
-                      <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider">
-                        {prod.catLabel || prod.cat}
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider truncate">
+                          {prod.catLabel || prod.cat}
+                        </span>
+                        {prod.price && (
+                          <span className="text-xs font-mono font-black text-amber-300 shrink-0">
+                            {prod.price}
+                          </span>
+                        )}
                       </div>
                       <h3 className="text-sm font-bold text-white line-clamp-2 mt-0.5">
                         {prod.name}
@@ -1367,6 +1419,26 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                     </span>
 
                     <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const currentVal = prod.price || '';
+                          const p = window.prompt(`Manage price for "${prod.name}":\n(Enter amount like ₹2,60,000 or leave blank for 'On Request')`, currentVal);
+                          if (p !== null) {
+                            const trimmed = p.trim();
+                            const formatted = trimmed ? (trimmed.startsWith('₹') ? trimmed : `₹${trimmed}`) : '';
+                            const num = formatted ? parseInt(formatted.replace(/[^0-9]/g, ''), 10) || 0 : 0;
+                            updateProduct(prod.id || prod._id, { price: formatted, priceNumber: num })
+                              .then(() => notify(`Price updated for "${prod.name}" to ${formatted || 'On Request'}`))
+                              .catch(err => notify(`Failed to update price: ${err.message}`, 'warning'));
+                          }
+                        }}
+                        title="Quick Manage Price"
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/70 border border-emerald-600/50 hover:bg-emerald-900 text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+                      >
+                        <Tag className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Price</span>
+                      </button>
+
                       <button
                         onClick={() => setEditingProduct({ ...prod })}
                         title="Edit Product"
@@ -2949,7 +3021,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 onClick={() => setShowAddProductModal(false)}
                 className="w-8 h-8 rounded-full bg-neutral-900/80 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
               >
-                Γ£ò
+                ✕
               </button>
             </div>
 
@@ -2973,7 +3045,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                   <label className="block text-neutral-300 font-semibold mb-1">Product Name (Korean)</label>
                   <input
                     type="text"
-                    placeholder="e.g. δ▓áδô£δí£ ∞èñδºêφè╕-1 ∞▓Ö∞╢ö ∞ÿ¿∞ù┤ δºê∞é¼∞ºÇΩ╕░"
+                    placeholder="e.g. 베드로 스마트-1 척추 온열 마사지기"
                     value={newProduct.nameKo}
                     onChange={(e) => setNewProduct({ ...newProduct, nameKo: e.target.value })}
                     className="w-full bg-[#07130f] border border-emerald-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400"
@@ -2981,7 +3053,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-neutral-300 font-semibold mb-1">Model Code / SKU *</label>
                   <input
@@ -2994,22 +3066,45 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 </div>
 
                 <div>
+                  <label className="block text-amber-300 font-semibold mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3 h-3 text-amber-400" />
+                      <span>Price (INR)</span>
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 font-normal">e.g. ₹2,60,000</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-amber-400/80 font-mono font-bold text-xs select-none">₹</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2,60,000 or leave empty"
+                      value={newProduct.price ? String(newProduct.price).replace(/^₹\s*/, '') : ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setNewProduct({ ...newProduct, price: val ? (val.startsWith('₹') ? val : `₹${val}`) : '' });
+                      }}
+                      className="w-full bg-[#07130f] border border-amber-500/60 rounded-xl pl-7 pr-3 py-2 text-amber-200 focus:outline-none focus:border-amber-400 font-mono font-bold placeholder:text-neutral-600 placeholder:font-normal"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-neutral-300 font-semibold mb-1">Category</label>
                   <select
                     value={newProduct.cat}
                     onChange={(e) => {
                       const c = e.target.value;
                       let label = 'Medical Systems & Therapy';
-                      if (c === 'series-a') label = 'Series A ┬╖ Botanicals';
-                      if (c === 'series-b') label = 'Series B ┬╖ Cellular Longevity';
+                      if (c === 'series-a') label = 'Series A · Botanicals';
+                      if (c === 'series-b') label = 'Series B · Cellular Longevity';
                       if (c === 'series-c') label = 'Flagship Medical Equipment';
                       setNewProduct({ ...newProduct, cat: c, catLabel: label });
                     }}
                     className="w-full bg-[#07130f] border border-emerald-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400 cursor-pointer"
                   >
                     <option value="series-c">Flagship Medical Equipment</option>
-                    <option value="series-b">Series B ┬╖ Cellular Longevity & Projectors</option>
-                    <option value="series-a">Series A ┬╖ Botanicals & Extracts</option>
+                    <option value="series-b">Series B · Cellular Longevity & Projectors</option>
+                    <option value="series-a">Series A · Botanicals & Extracts</option>
                   </select>
                 </div>
 
@@ -3734,7 +3829,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 onClick={() => setEditingProduct(null)}
                 className="w-8 h-8 rounded-full bg-neutral-900/80 hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer text-sm font-bold"
               >
-                Γ£ò
+                ✕
               </button>
             </div>
 
@@ -3764,7 +3859,7 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-neutral-300 font-semibold mb-1">Model Code / SKU</label>
                   <input
@@ -3776,22 +3871,45 @@ export const AdminPortalPage = ({ onNavigateHome, onLogout }) => {
                 </div>
 
                 <div>
+                  <label className="block text-amber-300 font-semibold mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3 h-3 text-amber-400" />
+                      <span>Price (INR)</span>
+                    </span>
+                    <span className="text-[10px] text-amber-400/80 font-normal">e.g. ₹2,60,000</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-amber-400/80 font-mono font-bold text-xs select-none">₹</span>
+                    <input
+                      type="text"
+                      placeholder="e.g. 2,60,000 or leave empty"
+                      value={editingProduct.price ? String(editingProduct.price).replace(/^₹\s*/, '') : ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingProduct({ ...editingProduct, price: val ? (val.startsWith('₹') ? val : `₹${val}`) : '' });
+                      }}
+                      className="w-full bg-[#07130f] border border-amber-500/60 rounded-xl pl-7 pr-3 py-2 text-amber-200 focus:outline-none focus:border-amber-400 font-mono font-bold placeholder:text-neutral-600 placeholder:font-normal"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-neutral-300 font-semibold mb-1">Category</label>
                   <select
                     value={editingProduct.cat || 'series-c'}
                     onChange={(e) => {
                       const c = e.target.value;
                       let label = 'Medical Systems & Therapy';
-                      if (c === 'series-a') label = 'Series A ┬╖ Botanicals';
-                      if (c === 'series-b') label = 'Series B ┬╖ Cellular Longevity';
+                      if (c === 'series-a') label = 'Series A · Botanicals';
+                      if (c === 'series-b') label = 'Series B · Cellular Longevity';
                       if (c === 'series-c') label = 'Flagship Medical Equipment';
                       setEditingProduct({ ...editingProduct, cat: c, catLabel: label });
                     }}
                     className="w-full bg-[#07130f] border border-emerald-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400 cursor-pointer"
                   >
                     <option value="series-c">Flagship Medical Equipment</option>
-                    <option value="series-b">Series B ┬╖ Cellular Longevity & Projectors</option>
-                    <option value="series-a">Series A ┬╖ Botanicals & Extracts</option>
+                    <option value="series-b">Series B · Cellular Longevity & Projectors</option>
+                    <option value="series-a">Series A · Botanicals & Extracts</option>
                   </select>
                 </div>
 
