@@ -96,12 +96,16 @@ export const FranchiseModal = ({ isOpen, onClose }) => {
   };
 
   const constructFormattedMessage = () => {
+    const name = formData.fullName.trim() || '[Applicant Name]';
+    const phone = formData.phone.trim() || '[Contact Number]';
+    const location = formData.city.trim() ? `${formData.city.trim()}${formData.state.trim() ? `, ${formData.state.trim()}` : ''}` : '[Proposed Location]';
+
     return `*DOOROOMIMEDIQUIP — FRANCHISE & HEALTHCARE CENTER APPLICATION*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤝 *Applicant Name:* ${formData.fullName.trim()}
-📱 *Contact Number:* ${formData.phone.trim()}
+🤝 *Applicant Name:* ${name}
+📱 *Contact Number:* ${phone}
 📧 *Email Address:* ${formData.email.trim() || 'Not Provided'}
-📍 *Proposed Location:* ${formData.city.trim()}${formData.state.trim() ? `, ${formData.state.trim()}` : ''}
+📍 *Proposed Location:* ${location}
 💼 *Current Occupation / Business:* ${formData.currentBusiness.trim() || 'Not Specified'}
 💰 *Investment Capacity:* ${formData.investmentCapacity}
 ⏱ *Expected Start Timeline:* ${formData.expectedTimeline}
@@ -114,50 +118,125 @@ _Sent via Dooroomi Mediquip Official Franchise Portal_`;
 
   // 1. WhatsApp Handler
   const handleSendWhatsApp = () => {
-    if (!validate()) return;
+    const hasName = Boolean(formData.fullName.trim());
+    const hasPhone = Boolean(formData.phone.trim());
+    const hasCity = Boolean(formData.city.trim());
+
+    if (!hasName || !hasPhone || !hasCity) {
+      const errs = {};
+      if (!hasName) errs.fullName = 'Please enter your name';
+      if (!hasPhone) errs.phone = 'Please enter your phone number';
+      if (!hasCity) errs.city = 'Please enter your city / state';
+      setErrors(errs);
+    }
+
     const msg = constructFormattedMessage();
     // Dooroomi official direct WhatsApp number
     const phone = "919153697636"; 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  // 2. Gmail / Email Handler
-  const handleSendGmail = () => {
-    if (!validate()) return;
+  // 2. Gmail / Email Handler — Opens native Gmail App on Mobile & Gmail Web Composer on Laptop
+  const handleSendGmail = (forceSystemMail = false) => {
+    const hasName = Boolean(formData.fullName.trim());
+    const hasPhone = Boolean(formData.phone.trim());
+    const hasCity = Boolean(formData.city.trim());
+
+    if (!hasName || !hasPhone || !hasCity) {
+      const errs = {};
+      if (!hasName) errs.fullName = 'Please enter your name (or fill it in the email draft)';
+      if (!hasPhone) errs.phone = 'Please enter your phone (or fill it in the email draft)';
+      if (!hasCity) errs.city = 'Please enter your city / state';
+      setErrors(errs);
+    }
+
     const recipient = SITE_CONFIG.inquiryEmail || "dooroomimediquip@gmail.com";
-    const subject = `Franchise & Center Partnership Application - ${formData.fullName} (${formData.city})`;
+    const applicantName = formData.fullName.trim() || '[Applicant Name]';
+    const applicantCity = formData.city.trim() || '[Proposed Center City]';
+    const applicantPhone = formData.phone.trim() || '[Phone / WhatsApp]';
+    const applicantEmail = formData.email.trim() || '[Email Address]';
+    const subject = `Franchise & Center Partnership Application - ${applicantName} (${applicantCity})`;
     
     const body = `Dear Dooroomi Mediquip Management Team,
 
 I am writing to formally submit my application for establishing a Dooroomi Authorized Free Therapy & Healthcare Franchise Center.
 
 APPLICANT PROFILE:
-- Full Name: ${formData.fullName}
-- Mobile / WhatsApp: ${formData.phone}
-- Email: ${formData.email || 'N/A'}
-- City & State: ${formData.city}${formData.state ? `, ${formData.state}` : ''}
-- Current Occupation: ${formData.currentBusiness || 'N/A'}
+- Full Name: ${applicantName}
+- Mobile / WhatsApp: ${applicantPhone}
+- Email: ${applicantEmail}
+- City & State: ${applicantCity}${formData.state ? `, ${formData.state.trim()}` : ''}
+- Current Occupation: ${formData.currentBusiness.trim() || 'Not Specified'}
 - Proposed Investment Budget: ${formData.investmentCapacity}
 - Preferred Setup Timeline: ${formData.expectedTimeline}
 
 ADDITIONAL INFORMATION:
-${formData.message || 'I would like to receive the complete franchise model, equipment list (BEDRO Smart-1, Taeyangsuk Mats, BioWave), profit & CSR structure, and territory verification.'}
+${formData.message.trim() || 'I would like to receive the complete franchise model, equipment list (BEDRO Smart-1, Taeyangsuk Mats, BioWave), profit & CSR structure, and territory verification.'}
 
 Looking forward to your prompt response.
 
 Warm regards,
-${formData.fullName}
-${formData.phone}`;
+${applicantName}
+${applicantPhone}`;
 
-    // Direct Gmail Web Compose link with fallback to mailto
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
-    // Attempt opening Gmail web, with fallback to standard mailto
-    const newWindow = window.open(gmailUrl, '_blank');
-    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-      window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const gmailWebUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+    const isAndroid = /android/i.test(ua);
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+    // Direct manual override for system mailto
+    if (forceSystemMail) {
+      window.location.href = mailtoUrl;
+      return;
     }
+
+    // A. MOBILE ANDROID: Launch Google Gmail Application directly via Android Intent
+    if (isAndroid) {
+      const androidGmailIntent = `intent:#Intent;action=android.intent.action.SENDTO;data=mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)};package=com.google.android.gm;end`;
+      try {
+        window.location.href = androidGmailIntent;
+      } catch (err) {
+        window.location.href = mailtoUrl;
+      }
+      // Safety fallback to standard mailto if intent doesn't resolve within 350ms
+      setTimeout(() => {
+        const fallbackLink = document.createElement('a');
+        fallbackLink.href = mailtoUrl;
+        document.body.appendChild(fallbackLink);
+        fallbackLink.click();
+        document.body.removeChild(fallbackLink);
+      }, 350);
+      return;
+    }
+
+    // B. MOBILE iOS (iPhone / iPad): Launch Gmail App via registered scheme or iOS Mail
+    if (isIOS) {
+      const iosGmailUrl = `googlegmail:///co?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = iosGmailUrl;
+      setTimeout(() => {
+        window.location.href = mailtoUrl;
+      }, 450);
+      return;
+    }
+
+    // C. LAPTOP / DESKTOP (Windows, Mac, Linux): Open Direct Gmail Web Compose in a new browser tab
+    // Triggering via an anchor click prevents browser popup blockers from blocking it
+    const link = document.createElement('a');
+    link.href = gmailWebUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -484,6 +563,17 @@ ${formData.phone}`;
                 </div>
               </button>
 
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-[11px] text-neutral-500">
+              <span>Alternative email client:</span>
+              <button
+                type="button"
+                onClick={() => handleSendGmail(true)}
+                className="text-hanbit-forest hover:text-hanbit-gold underline font-semibold cursor-pointer"
+              >
+                Open via System Mail (Outlook / Apple Mail)
+              </button>
             </div>
 
             <p className="text-[11px] text-neutral-400 text-center font-light pt-2">

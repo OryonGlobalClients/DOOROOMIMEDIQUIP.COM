@@ -261,19 +261,46 @@ export const ContactSection = ({
                 </p>
 
                 <div className="flex flex-wrap items-center gap-3 pt-1">
-                  <a
-                    href={`mailto:${SITE_CONFIG.inquiryEmail || 'dooroomimediquip@gmail.com'}?subject=${encodeURIComponent(
-                      `Therapy Consultation Inquiry - ${submittedData?.name || 'Patient'}`
-                    )}&body=${encodeURIComponent(
-                      `Dear Dooroomi Mediquip Team,\n\nI have submitted a therapy inquiry with the following details:\n\n• Name: ${submittedData?.name || ''}\n• Phone: ${submittedData?.phone || ''}\n• Email: ${submittedData?.email || ''}\n• Company/Organization: ${submittedData?.company || 'Private Individual'}\n• Device/Treatment: ${submittedData?.product || 'Free Therapy Consultation'}\n\nHealth Concern & Requirements:\n${submittedData?.message || ''}\n\nKindly confirm my therapy consultation schedule.\n\nThank you,\n${submittedData?.name || ''}`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hanbit-forest text-white text-xs font-bold hover:bg-emerald-900 transition shadow-xs"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const recipient = SITE_CONFIG.inquiryEmail || 'dooroomimediquip@gmail.com';
+                      const subject = `Therapy Consultation Inquiry - ${submittedData?.name || formData.name || 'Patient'}`;
+                      const body = `Dear Dooroomi Mediquip Team,\n\nI have submitted a therapy inquiry with the following details:\n\n• Name: ${submittedData?.name || formData.name || ''}\n• Phone: ${submittedData?.phone || formData.phone || ''}\n• Email: ${submittedData?.email || formData.email || ''}\n• Company/Organization: ${submittedData?.company || formData.company || 'Private Individual'}\n• Device/Treatment: ${submittedData?.product || formData.product || 'Free Therapy Consultation'}\n\nHealth Concern & Requirements:\n${submittedData?.message || formData.message || ''}\n\nKindly confirm my therapy consultation schedule.\n\nThank you,\n${submittedData?.name || formData.name || ''}`;
+
+                      const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      const gmailWebUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+                      const ua = navigator.userAgent || '';
+                      const isAndroid = /android/i.test(ua);
+                      const isIOS = /iPad|iPhone|iPod/.test(ua);
+
+                      if (isAndroid) {
+                        const androidIntent = `intent:#Intent;action=android.intent.action.SENDTO;data=mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)};package=com.google.android.gm;end`;
+                        try {
+                          window.location.href = androidIntent;
+                        } catch (err) {
+                          window.location.href = mailtoUrl;
+                        }
+                        setTimeout(() => { window.location.href = mailtoUrl; }, 350);
+                      } else if (isIOS) {
+                        window.location.href = `googlegmail:///co?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                        setTimeout(() => { window.location.href = mailtoUrl; }, 400);
+                      } else {
+                        const link = document.createElement('a');
+                        link.href = gmailWebUrl;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hanbit-forest text-white text-xs font-bold hover:bg-emerald-900 transition shadow-xs cursor-pointer"
                   >
                     <Mail className="w-3.5 h-3.5 text-hanbit-gold" />
                     <span>Send Copy via Email App / Gmail</span>
-                  </a>
+                  </button>
 
                   <button
                     onClick={() => {
