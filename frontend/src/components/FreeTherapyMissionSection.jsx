@@ -133,9 +133,9 @@ export const FreeTherapyMissionSection = ({ onContactClick, onNavigateAbout, onN
               <div className="overflow-hidden">
                 <a
                   href={`tel:${SITE_CONFIG.phoneTel}`}
-                  className="inline-flex items-center justify-center gap-2 sm:gap-2.5 text-lg xs:text-xl sm:text-2xl font-black text-white hover:text-hanbit-gold transition-colors font-mono tracking-normal sm:tracking-wide whitespace-nowrap max-w-full"
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2.5 text-base sm:text-xl md:text-2xl font-black text-white hover:text-hanbit-gold transition-colors font-mono tracking-tight sm:tracking-wide whitespace-nowrap max-w-full"
                 >
-                  <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6 text-hanbit-gold animate-bounce shrink-0" />
+                  <PhoneCall className="w-4 h-4 sm:w-6 sm:h-6 text-hanbit-gold animate-bounce shrink-0" />
                   <span className="whitespace-nowrap">{SITE_CONFIG.phone}</span>
                 </a>
                 <span className="block text-[11px] text-gray-300 mt-1">
