@@ -125,18 +125,18 @@ export const FreeTherapyMissionSection = ({ onContactClick, onNavigateAbout, onN
             </div>
 
             {/* Right Action Block with Helpline */}
-            <div className="lg:col-span-4 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 text-center space-y-4 shadow-inner">
+            <div className="lg:col-span-4 bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 border border-white/20 text-center space-y-4 shadow-inner">
               <span className="text-xs uppercase font-mono tracking-widest text-hanbit-gold block font-semibold">
                 National Helpline & Support
               </span>
 
-              <div>
+              <div className="overflow-hidden">
                 <a
                   href={`tel:${SITE_CONFIG.phoneTel}`}
-                  className="inline-flex items-center gap-3 text-2xl sm:text-3xl font-black text-white hover:text-hanbit-gold transition-colors font-mono tracking-wide"
+                  className="inline-flex items-center justify-center gap-2 sm:gap-2.5 text-lg xs:text-xl sm:text-2xl font-black text-white hover:text-hanbit-gold transition-colors font-mono tracking-normal sm:tracking-wide whitespace-nowrap max-w-full"
                 >
-                  <PhoneCall className="w-7 h-7 text-hanbit-gold animate-bounce" />
-                  <span>{SITE_CONFIG.phone}</span>
+                  <PhoneCall className="w-5 h-5 sm:w-6 sm:h-6 text-hanbit-gold animate-bounce shrink-0" />
+                  <span className="whitespace-nowrap">{SITE_CONFIG.phone}</span>
                 </a>
                 <span className="block text-[11px] text-gray-300 mt-1">
                   Helpline Customer Care (All India)
