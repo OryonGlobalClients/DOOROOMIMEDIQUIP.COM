@@ -91,7 +91,7 @@ export const Footer = ({ onNavigate, onSelectCategory }) => {
               <div className="pt-2 flex items-center space-x-2.5">
                 {/* Facebook */}
                 <a
-                  href="https://facebook.com"
+                  href={SITE_CONFIG.social?.facebook || "https://www.facebook.com/share/17ytN57fnB/"}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Facebook"
@@ -105,7 +105,7 @@ export const Footer = ({ onNavigate, onSelectCategory }) => {
 
                 {/* Instagram */}
                 <a
-                  href="https://instagram.com"
+                  href={SITE_CONFIG.social?.instagram || "https://www.instagram.com/dooroomimediquip/?hl=en"}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Instagram"
@@ -119,7 +119,7 @@ export const Footer = ({ onNavigate, onSelectCategory }) => {
 
                 {/* X (formerly Twitter) */}
                 <a
-                  href="https://x.com"
+                  href={SITE_CONFIG.social?.x || "https://x.com/Dooroomi_medi"}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="X (formerly Twitter)"
@@ -133,7 +133,7 @@ export const Footer = ({ onNavigate, onSelectCategory }) => {
 
                 {/* YouTube */}
                 <a
-                  href="https://youtube.com"
+                  href={SITE_CONFIG.social?.youtube || "https://www.youtube.com/channel/UCb95t9p7HabTZuqu43Df1Vw"}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="YouTube"

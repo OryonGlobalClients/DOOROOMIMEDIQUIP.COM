@@ -14,6 +14,12 @@ export const SITE_CONFIG = {
   directCallingTel: "+919348916882",
   email: "dooroomimediquip@gmail.com",
   inquiryEmail: "dooroomimediquip@gmail.com",
+  social: {
+    instagram: "https://www.instagram.com/dooroomimediquip/?hl=en",
+    youtube: "https://www.youtube.com/channel/UCb95t9p7HabTZuqu43Df1Vw",
+    x: "https://x.com/Dooroomi_medi",
+    facebook: "https://www.facebook.com/share/17ytN57fnB/",
+  },
   companyProfilePdf: "./assets/ceo/company-profile.pdf",
   plantAddress: "142 Songdo Bio-Cluster, Yeonsu-gu, Incheon, Republic of Korea",
   indiaHq: "Dooroomi Medical Pvt. Ltd., Plot no 3557, 1st floor, palasuni square, bhubaneswar 751010",
